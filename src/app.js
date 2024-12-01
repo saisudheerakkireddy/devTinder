@@ -10,18 +10,20 @@ app.listen(7777, ()=>{
 // res.send("This is test")
 // })
 
+//user, usr
+app.get ("/use?r",(req,res)=>{
+res.send("This is complex regex and other indicators")
+})
 
-app.get("/test1",(req,res)=>{
-    res.send({firstname : "Sudheer"})
-});
 
+//user, useeer
+app.get ("/use+r",(req,res)=>{
+    res.send("This is complex regex and plus")
+    })
+    
+    app.get ("/user/:userId",(req,res)=>{
 
-app.post("/user",(req,res)=>{
-
-    res.send("data is succesfully created")
-});
-
-app.delete("/user",(req,res) => {
-
-    res.send("deleted succesfully")
-});
+    console.log(req.params)
+        res.send("This is complex regex and other indicators")
+        })
+        
