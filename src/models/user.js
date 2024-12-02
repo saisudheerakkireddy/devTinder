@@ -1,4 +1,3 @@
-const { string } = require("i/lib/util");
 const mongoose = require("mongoose");
 
 const userSchema =  new mongoose.Schema({
@@ -24,4 +23,5 @@ const userSchema =  new mongoose.Schema({
 
 const UserModel = mongoose.model("User",userSchema);
 
-module.exports = userModel;
+module.exports = UserModel;
+
