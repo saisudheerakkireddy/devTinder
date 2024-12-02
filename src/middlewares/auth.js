@@ -19,5 +19,20 @@ const adminAuth = (req,res,next) => {
 
 }
 
+const userAuth = (req,res,next) => {
 
-module.exports ={ adminAuth}
+    const token = "xyz";
+
+    const isUserAuthorised = token ==="xyz";
+
+    if(!isUserAuthorised){
+
+        res.status(401).send("User is unauthorised");
+    }
+    else{
+        res.send("user is authorised");
+    }
+}
+
+
+module.exports ={ adminAuth, userAuth}
