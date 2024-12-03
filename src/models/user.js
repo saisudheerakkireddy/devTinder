@@ -23,7 +23,7 @@ const userSchema =  new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        
+
         
     },
     age:{
@@ -52,12 +52,22 @@ const userSchema =  new mongoose.Schema({
     skills:{
         type: [String] ,
         
+    }, 
+
+    about:{
+        type: String
+    },
+    photoUrl:{
+        type: String
     }
+  
 
 
 
 
-},{
+},
+
+{
     timestamps: true
 });
     
