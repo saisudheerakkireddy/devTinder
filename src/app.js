@@ -4,8 +4,8 @@ const express = require("express");
 
 const app = express();
 
-const UserModel = require("./models/user.js");
-
+const User = require("./models/user.js");
+///changed user to User
 app.use(express.json())
 
 
@@ -13,7 +13,7 @@ app.use(express.json())
 // app.post("/signup", async(req,res)=>{
 // // creating a instance of the User model
 
-// const user = new UserModel({
+// const user = new User({
 //     firstName: "Sudheer",
 //     lastName: "Akkireddy",
 //     emailId: "sudheerakkireddy@gmail.com",
@@ -27,11 +27,45 @@ app.use(express.json())
 
 // });
 
+//this is for finding user id with email
+
+app.get("/user", async (req,res) => {
+
+    const userEmail = req.body.emailId;
+    console.log(req.body)
+
+   try{
+    const user = await User.findOne({emailId : userEmail})
+    console.log(user)
+    res.status(200).send(user)
+
+   }
+       catch(err){
+
+        res.status(404).send("something is wrong")
+  
+       }
+   
+       
+   
+})
+
+// this is for finding all the user data available to show in feed
+
+app.get("/feed", async (req,res)=> {
+    try{  const userFeed = await User.find({}) 
+    res.status(200).send(userFeed)}
+    catch(err){
+        res.status(404).send("cant find data")
+    }
+  
+})
+
 app.post("/signup", async (req,res)=> {
 
     //creating a new instance of user model
 
-    const user = UserModel(req.body)
+    const user = User(req.body)
 
     console.log(req.body)
 
@@ -56,9 +90,9 @@ try{
 //         lastName : "akkireddy"
 //     }
 
-// //creating a new UserModel instance
+// //creating a new User instance
 
-// const user = new UserModel(userObj)
+// const user = new User(userObj)
 
 // user.save();
 
