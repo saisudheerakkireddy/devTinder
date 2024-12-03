@@ -3,6 +3,9 @@ const express = require("express");
  const connectDB =require("./config/database.js")
 
 const app = express();
+const validator = require("validator");
+
+//to implement strict checks for user input data(post, patch)
 
 const User = require("./models/user.js");
 ///changed user to User
@@ -10,22 +13,46 @@ app.use(express.json())
 
 
 
-// app.post("/signup", async(req,res)=>{
-// // creating a instance of the User model
 
-// const user = new User({
-//     firstName: "Sudheer",
-//     lastName: "Akkireddy",
-//     emailId: "sudheerakkireddy@gmail.com",
-//     password: "7780",
 
-// });
+app.post("/signup", async(req,res)=>{
+// creating a instance of the User model
+try{
 
-// await user.save();
+const user = new User(req.body);
 
-// res.send("user added successfully")
+await user.save();
 
-// });
+res.send("user added successfully")
+}
+catch(err){
+    res.status(400).send("something is wrong:" + err.message)
+}
+
+});
+
+//this is for adding custom validators into schema
+
+app.patch("/user/:userId",async (req,res) => {
+    const userId = req.params.userId;
+
+    const data = req.body
+    try{
+
+        const user =  await User.findByIdAndUpdate(userId,data,{ returnDocument:"before",runValidators:true})
+        console.log(user);
+        res.send(user)
+        user.save();
+        
+       
+       
+
+    }
+    catch(err){
+       res.status(500).send("something is wrong" + err.message)
+
+    }
+})
 
 //this is for finding user id with email
 
