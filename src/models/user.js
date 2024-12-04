@@ -1,80 +1,66 @@
 const mongoose = require("mongoose");
-const { trim } = require("validator");
+const validator = require("validator"); 
+const { default: isURL } = require("validator/lib/isURL");
 
-const userSchema =  new mongoose.Schema({
-
-    firstName : {
+const userSchema = new mongoose.Schema({
+    firstName: {
         type: String,
         required: true,
         trim: true,
         minLength: 4,
-        maxLength:40
-
-
-        
+        maxLength: 40
     },
-    lastName : {
+    lastName: {
         type: String,
         required: true,
         trim: true,
-        
+        minLength: 2, // Added minLength
+        maxLength: 40 // Added maxLength
     },
-    emailId:{
+    emailId: {
         type: String,
         required: true,
+        unique:true,
         trim: true,
-
-        
-    },
-    age:{
-        type: Number,
-       required:true,
-       min:18,
-       max:80,
-       
-        validate(value){
-            if(value<18){
-                throw new Error("User must be ABOVE 18")
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error("Invalid email format");
             }
         }
+    },
+    age: {
+        type: Number,
+        required: true,
+        min: 18,
+        max: 80
     },
     gender: {
         type: String,
-        validate(value){
-            if(!["male","female","others"].includes(value))
-            {
-                throw new Error("Gender is incorrect")
+        validate(value) {
+            if (!["male", "female", "others"].includes(value)) {
+                throw new Error("Gender is incorrect");
             }
         }
-      
-
     },
-    skills:{
-        type: [String] ,
-        
-    }, 
-
-    about:{
+    skills: {
+        type: [String],
+       
+    },
+    about: {
         type: String
     },
-    photoUrl:{
-        type: String
+    photoUrl: {
+        type: String,
+        validate(value){
+            if(!isURL(value)){
+                throw new Error("Invalid URL:" )
+            }
+        }
     }
-  
-
-
-
-
-},
-
-{
+}, {
     timestamps: true
 });
-    
 
-      
+const User = mongoose.model("User", userSchema);
 
-const UserModel = mongoose.model("User",userSchema);
-
-module.exports = UserModel;
-
+module.exports = User;

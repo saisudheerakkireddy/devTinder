@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "scripts": "kill -9 $(lsof -ti:7777,8884) && npm start"
   },
   "keywords": [
     "nodejs",
@@ -14,8 +15,10 @@
   "author": "Sudheer",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.21.1",
     "mongoose": "^8.8.3",
+    "nodemon": "^3.1.7",
     "validator": "^13.12.0"
   }
 }

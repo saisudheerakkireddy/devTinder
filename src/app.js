@@ -1,168 +1,133 @@
 const express = require("express");
-
- const connectDB =require("./config/database.js")
-
+const connectDB = require("./config/database.js");
 const app = express();
 const validator = require("validator");
+const bcrypt = require("bcrypt");
+const {validateSignUpData} = require("./utils/validation.js")
 
-//to implement strict checks for user input data(post, patch)
-
+// to implement strict checks for user input data(post, patch)
 const User = require("./models/user.js");
-///changed user to User
-app.use(express.json())
+app.use(express.json());
 
 
 
 
+app.post("/signup", async (req, res) => {
+
+    try {
+    //validate user signup data
 
 
 
+    validateSignUpData(req);
 
 
-app.post("/signup", async(req,res)=>{
-// creating a instance of the User model
-try{
+    //encrypt the password
 
-const user = new User(req.body);
+    const {firstName,lastName,emailId,password,age} = req.body;
 
-await user.save();
+    const passwordHash =  await bcrypt.hash(password,10);
+    console.log(passwordHash)
 
-res.send("user added successfully")
-}
-catch(err){
-    res.status(400).send("something is wrong:" + err.message)
-}
 
+    //creating user instance updating way
+
+    // const user = new User(req.body)
+    const user = new User({firstName, lastName, emailId, password:passwordHash, age});
+
+
+        const existingUser = await User.findOne({emailId:req.body.emailId});
+        if (existingUser) {
+        throw new Error("Email already exists");
+        }
+
+
+
+       
+        await user.save();
+        res.send("user added successfully");
+    } catch (err) {
+        console.error(err); // Log error for debugging
+        res.status(400).send("something is wrong: " + err.message);
+    }
 });
 
-//this is for adding custom validators into schema
+//above code is for signup api
 
-app.patch("/user/:userId",async (req,res) => {
+
+
+
+
+
+// this is for adding custom validators into schema
+app.patch("/user/:userId", async (req, res) => {
     const userId = req.params.userId;
-
     const data = req.body;
-    try{
+    
+    try {
+        const ALLOWED_UPDATES = ["photoUrl", "about", "skills"];
+        const isUpdateAllowed = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
 
+        if (!isUpdateAllowed) {
+            throw new Error("Update not allowed");
+        }
 
-        
+        // Use 'new: true' to return the updated document
+        const user = await User.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
 
-            const ALLOWED_UPDATES =["photoUrl","about","skills"];
-            
-            const isUpdateAllowed = Object.keys(data).every((k)=>ALLOWED_UPDATES.includes(k));
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
 
-            if(!isUpdateAllowed){
-               throw new Error("Update not allowed")
-            }
-            
-            
-       
-            
-            
-        const user =  await User.findByIdAndUpdate(userId,data,{ returnDocument:"before",runValidators:true})
         console.log(user);
-        res.send(user)
-        user.save();
+        res.send(user);
+    } catch (err) {
+        console.error(err); // Log error for debugging
+        res.status(500).send("something is wrong: " + err.message);
+    }
+});
+
+// this is for finding user id with email
+app.get("/user", async (req, res) => {
+    const userEmail = req.query.emailId; // Changed to query parameter
+    console.log(req.query);
+
+    try {
+        const user = await User.findOne({ emailId: userEmail });
         
-       
-       
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
 
+        console.log(user);
+        res.status(200).send(user);
+    } catch (err) {
+        console.error(err); // Log error for debugging
+        res.status(500).send("something is wrong: " + err.message);
     }
-    catch(err){
-       res.status(500).send("something is wrong" + err.message)
-
-    }
-})
-
-//this is for finding user id with email
-
-app.get("/user", async (req,res) => {
-
-    const userEmail = req.body.emailId;
-    console.log(req.body)
-
-   try{
-    const user = await User.findOne({emailId : userEmail})
-    console.log(user)
-    res.status(200).send(user)
-
-   }
-       catch(err){
-
-        res.status(404).send("something is wrong")
-  
-       }
-   
-       
-   
-})
+});
 
 // this is for finding all the user data available to show in feed
-
-app.get("/feed", async (req,res)=> {
-    try{  const userFeed = await User.find({}) 
-    res.status(200).send(userFeed)}
-    catch(err){
-        res.status(404).send("cant find data")
+app.get("/feed", async (req, res) => {
+    try {
+        const userFeed = await User.find({});
+        res.status(200).send(userFeed);
+    } catch (err) {
+        console.error(err); // Log error for debugging
+        res.status(500).send("can't find data: " + err.message);
     }
-  
-})
-
-app.post("/signup", async (req,res)=> {
-
-    //creating a new instance of user model
-
-    const user = User(req.body)
-
-    console.log(req.body)
-
-    //req.body converts the json object using middleware and save it to database ,, one important point is that it only stores the data 
-    //according to the defined user input schema
-
-   
-try{  
-   res.send("test")
-
-   await  user.save();}
-    catch (err){
-        res.status(400).send("something is wrong")
-    }
- 
-
-})
-
-// app.post("/signup", (req,res)=> {
-//     const userObj = {
-//         firstName: "sudheer",
-//         lastName : "akkireddy"
-//     }
-
-// //creating a new User instance
-
-// const user = new User(userObj)
-
-// user.save();
-
-// res.send("user added succesfully")
-
-// })
-
-
-
-
+});
 
 connectDB()
-    .then(()=> {
+    .then(() => {
         console.log("Database connection established!!!");
-        app.listen(7777, ()=>{
-            console.log("server is listening at port 7777")
+        app.listen(7777, () => {
+            console.log("server is listening at port 7777");
         });
-        
     })
-    .catch(()=> {
-        console.error(" Database cannot be connected")
+    .catch((err) => {
+        console.error("Database cannot be connected: " + err.message);
     });
 
 
-
-
-
+  
