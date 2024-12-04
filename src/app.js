@@ -52,7 +52,38 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-//above code is for signup api
+//above code is for signup api now this is for login api validation
+
+app.post("/login", async(req,res) => {
+
+try {
+    const {emailId,password} = req.body;
+
+    const user = await User.findOne({emailId: emailId})
+    if(!user){
+        throw new Error("Invalid Credentials")
+    }
+
+     const isPasswordValid = await bcrypt.compare(password,user.password)
+     if(!isPasswordValid){
+        throw new Error("Invalid credentials")
+     }
+
+     res.status(200).send("login successful")
+    
+} catch (err) {
+    res.status(400).send("Something is wrong while logging in")
+    
+}
+
+
+
+
+
+
+})
+
+
 
 
 

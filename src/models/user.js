@@ -3,6 +3,12 @@ const validator = require("validator");
 const { default: isURL } = require("validator/lib/isURL");
 
 const userSchema = new mongoose.Schema({
+    password: {
+        type:String,
+        required:true,
+        trim : true
+
+    },
     firstName: {
         type: String,
         required: true,
