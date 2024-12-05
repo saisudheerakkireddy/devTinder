@@ -5,6 +5,7 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const {validateSignUpData} = require("./utils/validation.js")
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 // to implement strict checks for user input data(post, patch)
 const User = require("./models/user.js");
@@ -75,10 +76,14 @@ try {
      if(!isPasswordValid){
         //creating a JWT 
 
+        const token = await jwt.sign({_id: user._id},"DEV@Tinder$143");
+        // console.log(token);
+
 
 
         //Add the token to cookie and send the response back to the user
-
+        res.cookie("token",token);
+        res.send("Login Successfull!!")
 
 
         throw new Error("Invalid credentials")
@@ -97,7 +102,7 @@ try {
 app.get("/profile",(req,res)=> {
 
     const cookies = req.cookies;
-    res.send("Loading cookies")
+    res.send("Reading cookies")
 
     console.log(cookies)
 })
