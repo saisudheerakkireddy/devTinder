@@ -4,10 +4,15 @@ const app = express();
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const {validateSignUpData} = require("./utils/validation.js")
+const cookieParser = require("cookie-parser");
 
 // to implement strict checks for user input data(post, patch)
 const User = require("./models/user.js");
+
 app.use(express.json());
+
+//cookie-parser middleware 
+app.use(cookieParser());
 
 
 
@@ -87,6 +92,14 @@ try {
 }
 
 
+})
+
+app.get("/profile",(req,res)=> {
+
+    const cookies = req.cookies;
+    res.send("Loading cookies")
+
+    console.log(cookies)
 })
 
 
