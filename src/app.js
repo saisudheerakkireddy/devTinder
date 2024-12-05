@@ -65,7 +65,17 @@ try {
     }
 
      const isPasswordValid = await bcrypt.compare(password,user.password)
+
+
      if(!isPasswordValid){
+        //creating a JWT 
+
+
+
+        //Add the token to cookie and send the response back to the user
+
+
+
         throw new Error("Invalid credentials")
      }
 
@@ -75,10 +85,6 @@ try {
     res.status(400).send("Something is wrong while logging in")
     
 }
-
-
-
-
 
 
 })
@@ -159,6 +165,3 @@ connectDB()
     .catch((err) => {
         console.error("Database cannot be connected: " + err.message);
     });
-
-
-  
