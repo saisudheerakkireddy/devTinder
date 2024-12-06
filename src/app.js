@@ -34,7 +34,7 @@ app.post("/signup", async (req, res) => {
     const {firstName,lastName,emailId,password,age} = req.body;
 
     const passwordHash =  await bcrypt.hash(password,10);
-    console.log(passwordHash)
+    // console.log(passwordHash)
 
 
     //creating user instance updating new way
