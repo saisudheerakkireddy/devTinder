@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const {validateSignUpData} = require("./utils/validation.js")
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth.js");
 
 // to implement strict checks for user input data(post, patch)
 const User = require("./models/user.js");
@@ -36,7 +37,7 @@ app.post("/signup", async (req, res) => {
     console.log(passwordHash)
 
 
-    //creating user instance updating way
+    //creating user instance updating new way
 
     // const user = new User(req.body)
     const user = new User({firstName, lastName, emailId, password:passwordHash, age});
@@ -70,108 +71,65 @@ try {
         throw new Error("Invalid Credentials")
     }
 
-     const isPasswordValid = await bcrypt.compare(password,user.password)
+     const isPasswordValid = await user.validatePassword(password);
 
 
-     if(!isPasswordValid){
+     if(isPasswordValid){
         //creating a JWT 
 
-        const token = await jwt.sign({_id: user._id},"DEV@Tinder$143");
-        // console.log(token);
+        const token = await user.getJWT();
+       
 
 
 
         //Add the token to cookie and send the response back to the user
-        res.cookie("token",token);
-        res.send("Login Successfull!!")
+        res.cookie("token",token,
+            {expires: new Date(Date.now()+ 12 * 3600000)  //this expires cookies in 8 hours
 
+            });
+        res.send("Login Successfull!!");
 
-        throw new Error("Invalid credentials")
+     }else{
+        throw new Error("Invalid credentials");
      }
 
-     res.status(200).send("login successful")
     
 } catch (err) {
-    res.status(400).send("Something is wrong while logging in")
+    res.status(400).send("Something is wrong while logging in"+ err.message)
     
 }
 
 
-})
+});
 
-app.get("/profile",(req,res)=> {
+app.get("/profile", userAuth,async (req,res)=> {
 
-    const cookies = req.cookies;
-    res.send("Reading cookies")
-
-    console.log(cookies)
-})
-
-
-
-
-
-
-
-
-// this is for adding custom validators into schema
-app.patch("/user/:userId", async (req, res) => {
-    const userId = req.params.userId;
-    const data = req.body;
+try{
     
-    try {
-        const ALLOWED_UPDATES = ["photoUrl", "about", "skills"];
-        const isUpdateAllowed = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
+  
 
-        if (!isUpdateAllowed) {
-            throw new Error("Update not allowed");
-        }
 
-        // Use 'new: true' to return the updated document
-        const user = await User.findByIdAndUpdate(userId, data, { new: true, runValidators: true });
+    const user = req.user;
+   
+   
 
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
+res.send(user);
 
-        console.log(user);
-        res.send(user);
-    } catch (err) {
-        console.error(err); // Log error for debugging
-        res.status(500).send("something is wrong: " + err.message);
-    }
+
+} catch(err){
+    res.status(400).send("ERROR "+ err.message);
+
+}
+
 });
 
-// this is for finding user id with email
-app.get("/user", async (req, res) => {
-    const userEmail = req.query.emailId; // Changed to query parameter
-    console.log(req.query);
+app.post("/sendConnectionRequest", userAuth ,async(req,res)=> {
 
-    try {
-        const user = await User.findOne({ emailId: userEmail });
-        
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
 
-        console.log(user);
-        res.status(200).send(user);
-    } catch (err) {
-        console.error(err); // Log error for debugging
-        res.status(500).send("something is wrong: " + err.message);
-    }
-});
+    console.log("sending a connectionrequest");
+    res.send("Connection request sent")
 
-// this is for finding all the user data available to show in feed
-app.get("/feed", async (req, res) => {
-    try {
-        const userFeed = await User.find({});
-        res.status(200).send(userFeed);
-    } catch (err) {
-        console.error(err); // Log error for debugging
-        res.status(500).send("can't find data: " + err.message);
-    }
-});
+})
 
 connectDB()
     .then(() => {
