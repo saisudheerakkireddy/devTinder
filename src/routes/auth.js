@@ -99,15 +99,40 @@ try {
 
 
 });
-try{
-authRouter.post("/logout", async (req,res) => {
-    res.cookie("token",null,{
-        expires: new Date(Date.now())
-    });
-res.send("Logout successful")
-})
-}catch(err){
-    throw new Error("Something is not Valid" + err.message);
-}
+
+
+
+
+
+// authRouter.post("/logout", async (req,res) => {
+
+//     try{
+//     res.cookie("token",null,{
+//         expires: new Date(Date.now())
+//     });
+
+//     catch(err){
+//         throw new Error("Something is not Valid" + err.message);
+//     }
+// res.send("Logout successful")
+// })
+// module.exports = authRouter;
+
+
+authRouter.post("/logout", async (req, res) => {
+    try {
+        // Clear the token cookie by setting it to null and expiring it immediately
+        res.cookie("token", null, {
+            expires: new Date(Date.now()), // Set expiration to now to delete the cookie
+            httpOnly: true, // Optional: Prevents client-side access to the cookie
+            secure: process.env.NODE_ENV === 'production' // Use secure cookies in production
+        });
+
+        res.send("Logout successful");
+    } catch (err) {
+        console.error(err); // Log the error for debugging
+        res.status(500).send("Something went wrong: " + err.message); // Send a meaningful error response
+    }
+});
 
 module.exports = authRouter;
