@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const validator = require("validator"); 
-const { default: isURL } = require("validator/lib/isURL");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -30,6 +29,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique:true,
         trim: true,
+        // we can also use enum here
         validate(value) {
             if (!validator.isEmail(value)) {
                 throw new Error("Invalid email format");
@@ -70,11 +70,10 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.getJWT = async function() {
-
-
+        
     const user = this;
     
-    const token = await jwt.sign({_id : user._id}, "DEV@Tinder$143",{expiresIn:"7d"}
+    const token = jwt.sign({_id : user._id}, "DEV@Tinder$143",{expiresIn:"7d"}
    
     );
 
@@ -86,6 +85,8 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
     const user= this;
     const passwordHash = user.password;
 
+
+   
     const isPasswordValid= await  bcrypt.compare(
         passwordInputByUser
         ,passwordHash);
@@ -93,6 +94,7 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
 return isPasswordValid;
 
 }
+
 
 
 const User = mongoose.model("User", userSchema);

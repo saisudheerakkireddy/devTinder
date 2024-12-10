@@ -3,6 +3,7 @@ const connectDB = require("./config/database.js");
 const app = express();
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
+const userAuth = require("./middlewares/auth.js")
 
 
 
