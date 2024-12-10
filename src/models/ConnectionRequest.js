@@ -35,8 +35,8 @@ connectionRequestSchema.index({fromUserId : 1,toUserId : 1});
 
 
 
-
-connectionRequestSchema.pre("save",function () {
+// To demonstrate pre hook
+connectionRequestSchema.pre("save",function (next) {
 
     const connectionRequest =this;
     // check if the from user id is same as touserId
