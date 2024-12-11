@@ -3,6 +3,7 @@ const userRouter = express.Router();
 const userAuth = require("../middlewares/auth.js");
 const ConnectionRequest = require("../models/ConnectionRequest.js");
 const User = require("../models/user.js");
+const { toInt } = require("validator");
 
 const SAFE_USER_DATA = "firstName lastName age gender";
 
@@ -72,6 +73,12 @@ try{
    //he should not be seeing someone he already interacted with either interested or ignored 
 
    const loggedInUser = req.user;
+   
+   const page = parseInt(req.query.page) || 1 ;
+     let limit = parseInt(req.query.limit) || 10;
+     limit = limit>50 ? 50 : limit; // if limit if greater than 50 set it to 50 or limit
+   const skip = (page-1) * limit;
+
 
    const connections = await ConnectionRequest.find({
  $or : [
@@ -84,8 +91,8 @@ try{
 
      const hideUsersFromFeed = new Set();
      connections.forEach((req) => {
-        hideUsersFromFeed.add(req.fromUserId);
-        hideUsersFromFeed.add(req.toUserId);
+        hideUsersFromFeed.add(req.fromUserId.toString());
+        hideUsersFromFeed.add(req.toUserId.toString());
      });
 
      const users = await User.find({
@@ -94,10 +101,12 @@ try{
             { _id : { $ne : loggedInUser._id}}
         ]
      }).select(SAFE_USER_DATA)
+     .skip(skip)
+     .limit(limit);
 
    
 
-   res.status(200).json({connections});
+   res.status(200).json({users});
 
 
 
