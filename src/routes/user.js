@@ -43,7 +43,7 @@ userRouter.get("/user/connections", userAuth, async(req,res) => {
             ]
         }).populate("fromUserId",SAFE_USER_DATA).populate("toUserId",SAFE_USER_DATA);
 
-        console.log(connectionRequests);
+       
         
 
         const data = connectionRequests.map((row) => {
