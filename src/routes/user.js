@@ -2,6 +2,7 @@ const express = require("express");
 const userRouter = express.Router();
 const userAuth = require("../middlewares/auth.js");
 const ConnectionRequest = require("../models/ConnectionRequest.js");
+const User = require("../models/user.js");
 
 const SAFE_USER_DATA = "firstName lastName age gender";
 
@@ -62,6 +63,48 @@ userRouter.get("/user/connections", userAuth, async(req,res) => {
         res.status(400).send("ERROR:" + err.message)
     }
 
+
+});
+
+userRouter.get("/feed",userAuth, async (req,res) => {
+try{
+   //sudheer should not see himself in the feed
+   //he should not be seeing someone he already interacted with either interested or ignored 
+
+   const loggedInUser = req.user;
+
+   const connections = await ConnectionRequest.find({
+ $or : [
+
+    {fromUserId:loggedInUser._id},
+    {toUserId: loggedInUser._id}
+ ]
+ }).select("fromUserId toUserId")
+
+
+     const hideUsersFromFeed = new Set();
+     connections.forEach((req) => {
+        hideUsersFromFeed.add(req.fromUserId);
+        hideUsersFromFeed.add(req.toUserId);
+     });
+
+     const users = await User.find({
+        $and:[
+            { _id : {$nin : Array.from(hideUsersFromFeed)}},
+            { _id : { $ne : loggedInUser._id}}
+        ]
+     }).select(SAFE_USER_DATA)
+
+   
+
+   res.status(200).json({connections});
+
+
+
+
+}catch(err){
+res.status(400).send("ERROR:" + err.message)
+}
 
 })
 
