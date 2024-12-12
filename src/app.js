@@ -4,11 +4,16 @@ const app = express();
 const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const userAuth = require("./middlewares/auth.js")
+const cors = require("cors");
 
 
 
 
+app.use(cors({
+origin:"http://localhost:5173",
+credentials: true,
 
+}));
 app.use(express.json());
 
 //cookie-parser middleware 

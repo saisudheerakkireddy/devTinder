@@ -13,6 +13,7 @@ const userAuth= require("../middlewares/auth.js");
 
 
 
+
 authRouter.post("/signup", async (req, res) => {
 
     try {
@@ -73,7 +74,7 @@ try {
         res.cookie("token",token,
             {expires: new Date(Date.now()+ 12 * 3600000)  //this expires cookies in 12 hours
             });
-         return res.send("Login Successfull!!");
+         return res.send(user);
          
 
      }else{

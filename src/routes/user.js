@@ -3,7 +3,7 @@ const userRouter = express.Router();
 const userAuth = require("../middlewares/auth.js");
 const ConnectionRequest = require("../models/ConnectionRequest.js");
 const User = require("../models/user.js");
-const { toInt } = require("validator");
+
 
 const SAFE_USER_DATA = "firstName lastName age gender";
 
