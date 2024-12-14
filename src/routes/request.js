@@ -47,7 +47,7 @@ throw new Error("  :Not Allowed")
     return res.status(200).json({message: "Connection request is sent ",data})
 
  }catch(err){
-    res.status(400).send("ERROR" +err.message ) 
+    res.status(401).send("ERROR" +err.message ) 
 
  }
 
@@ -86,7 +86,7 @@ requestRouter.post("/request/review/:status/:requestId",userAuth, async(req,res)
    
     } catch (err) {
 
-        res.status(400).send("Error:" + err.message);
+        res.status(401).send("Error:" + err.message);
         
     }
 })

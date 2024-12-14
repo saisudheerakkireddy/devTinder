@@ -84,7 +84,7 @@ try {
     
     
 } catch (err) {
-    res.status(400).send("Something is wrong while logging in"+ err.message)
+    res.status(400).send("ERROR:" +  err.message)
     
 }
 

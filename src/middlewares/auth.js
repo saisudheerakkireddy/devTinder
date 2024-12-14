@@ -10,7 +10,7 @@ const userAuth = async (req,res,next) => {
 
             // const {token} = cookies;
             if(!token){
-                throw new Error(":  Token is not vali  d!!")
+               return res.status(401).send("Please login" + err.message)
             }
 
             //validate the token

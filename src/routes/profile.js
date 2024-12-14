@@ -19,7 +19,7 @@ const bcrypt = require("bcrypt");
     
     
     } catch(err){
-        res.status(400).send("ERROR "+ err.message);
+        res.status(401).send("ERROR " + err.message);
     
     }
     
@@ -46,7 +46,7 @@ const bcrypt = require("bcrypt");
          res.send(`${loggedInUser.firstName} your profile was updated successfully`);
         
         }catch(err){
-            res.status(400).send("ERROR:" + err.message);
+            res.status(401).send("ERROR:" + err.message);
 
         }
     });
